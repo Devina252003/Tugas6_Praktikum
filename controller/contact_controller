@@ -1,0 +1,110 @@
+<?php
+
+include_once 'model/contact_model.php';
+
+class ContactController {
+    static function add() {
+        if (!isset($_SESSION['user'])) {
+            header('Location: '.BASEURL.'login?auth=false');
+            exit;
+        }
+        else {
+            // Memuat tampilan untuk menambahkan kontak
+            view('dash_page/layout', ['url' => 'view/contact_crud_page/add']);
+        }
+    }
+
+    static function saveAdd() {
+        if (!isset($_SESSION['user'])) {
+            header('Location: '.BASEURL.'login?auth=false');
+            exit;
+        }
+        else {
+            // Melakukan validasi input dan menyimpan kontak baru
+            $post = array_map('htmlspecialchars', $_POST);
+            $contact = Contact::insert([
+                'phone_number' => $post['phone_number'], 
+                'owner' => $post['owner'],
+                'user_fk' => $_SESSION['user']['id'] // Menyimpan ID pengguna yang terkait dengan kontak
+            ]);
+            
+            if ($contact) {
+                header('Location: '.BASEURL.'contacts');
+            }
+            else {
+                header('Location: '.BASEURL.'contacts/add?addFailed=true');
+            }
+        }
+    }
+
+    static function edit() {
+        if (!isset($_SESSION['user'])) {
+            header('Location: '.BASEURL.'login?auth=false');
+            exit;
+        }
+        else {
+            // Memuat tampilan untuk mengedit kontak
+            view('dash_page/layout', [
+                'url' => 'view/contact_crud_page/edit',
+                'contact' => Contact::select($_GET['id'])
+            ]);
+        }
+    }
+
+    static function saveEdit() {
+        if (!isset($_SESSION['user'])) {
+            header('Location: '.BASEURL.'login?auth=false');
+            exit;
+        }
+        else {
+            // Melakukan validasi input dan menyimpan perubahan kontak
+            $post = array_map('htmlspecialchars', $_POST);
+            $contact = Contact::update([
+                'No_ID' => $_GET['id'], // Menggunakan ID untuk menentukan kontak yang akan diedit
+                'No_HP' => $post['phone_number'], // Menyimpan nomor telepon yang diubah
+                'Pemilik' => $post['owner'] // Menyimpan pemilik yang diubah
+            ]);
+            if ($contact) {
+                header('Location: '.BASEURL.'dashboard/contacts');
+            }
+            else {
+                header('Location: '.BASEURL.'contacts/edit?id='.$_GET['id'].'&editFailed=true');
+            }
+        }
+    }
+
+    static function remove() {
+        if (!isset($_SESSION['user'])) {
+            header('Location: '.BASEURL.'login?auth=false');
+            exit;
+        }
+        else {
+            // Menghapus kontak yang dipilih
+            $contact = Contact::delete($_GET['id']); // Menggunakan ID untuk menghapus kontak tertentu
+            if ($contact) {
+                header('Location: '.BASEURL.'dashboard/contacts');
+            }
+            else {
+                header('Location: '.BASEURL.'dashboard/contacts?removeFailed=true');
+            }
+        }
+    }
+
+    static function report() {
+        if (!isset($_SESSION['user'])) {
+            header('Location: '.BASEURL.'login?auth=false');
+            exit;
+        }
+        else {
+            // Membuat laporan berdasarkan jumlah kontak per kota
+            $contacts = Contact::rawQuery("SELECT COUNT(c1.No_ID) as user_count, c2.city as user_city FROM contacts as c1, cities as c2 WHERE c1.city_fk = c2.id GROUP BY user_city;");
+            if ($contacts) {
+                view('component/report', ['contacts' => $contacts]);
+            }
+            else {
+                header('Location: '.BASEURL.'dashboard/contacts?removeFailed=true');
+            }
+        }
+    }
+}
+?>
