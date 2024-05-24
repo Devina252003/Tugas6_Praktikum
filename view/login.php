@@ -1,40 +1,28 @@
 <?php
-require_once 'database.php';
+require_once"../../config/conn.php";
 
-// Periksa koneksi
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Periksa apakah formulir login disubmit
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Ambil nilai dari formulir login
-    $input_email = $_POST['email'];
-    $input_password = $_POST['password'];
+    $username = $_POST['username'];
+    $password = $_POST['password'];
 
-    // Periksa apakah email dan password cocok dengan data di database
-    $sql = "SELECT * FROM tbl_users WHERE Email='$input_email'";
-    $result = $conn->query($sql);
 
-    if ($result->num_rows > 0) {
-        // Data pengguna ditemukan, periksa password
-        $user = $result->fetch_assoc();
-        if ($user['Password'] == $input_password) {
-            // Password cocok, login berhasil
-            echo "Login successful!";
-            // Redirect ke halaman lain atau lakukan tindakan lainnya
-        } else {
-            // Password tidak cocok
-            echo "Invalid password!";
-        }
+    $query = "SELECT * FROM users WHERE username='$username' AND password='$password'";
+    $result = mysqli_query($conn, $query);
+
+    if (mysqli_num_rows($result) == 1) {
+        $_SESSION['loggedin'] = true;
+        $_SESSION['username'] = $username;
+
+        header("Location:../index.php");
+        exit;
     } else {
-        // Data pengguna tidak ditemukan
-        echo "User not found!";
+        // Authentication failed
+        $error = "Username or password incorrect!";
     }
-}
 
-// Tutup koneksi database
-$conn->close();
+    // Close connection
+    mysqli_close($conn);
+}
 ?>
 
 
