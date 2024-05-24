@@ -1,7 +1,6 @@
 <?php
 require_once 'database.php';
 
-// Periksa apakah form telah disubmit
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nama = mysqli_real_escape_string($conn, $_POST['name']);
     $email = mysqli_real_escape_string($conn, $_POST['email']);
