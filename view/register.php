@@ -3,24 +3,18 @@ require_once 'database.php';
 
 // Periksa apakah form telah disubmit
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Lindungi input dari SQL Injection dengan menggunakan prepared statement
     $nama = mysqli_real_escape_string($conn, $_POST['name']);
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     $password = mysqli_real_escape_string($conn, $_POST['password']);
 
-    // Periksa apakah email sudah ada di database
     $query_check_email = "SELECT * FROM tbl_users WHERE Email = '$email'";
     $result_check_email = mysqli_query($conn, $query_check_email);
     if (mysqli_num_rows($result_check_email) > 0) {
-        // Jika email sudah ada, tampilkan pesan kesalahan
         echo "Email sudah terdaftar!";
     } else {
-        // Email belum terdaftar, lakukan proses pendaftaran
-        // Buat dan jalankan query INSERT
         $query = "INSERT INTO tbl_users (Nama, Email, Password) VALUES ('$nama', '$email', '$password')";
 
         if (mysqli_query($conn, $query)) {
-            // Redirect ke halaman login jika registrasi berhasil
             header("Location: login.php");
             exit();
         } else {
@@ -36,9 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -71,7 +63,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
         </div>
     </div>
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
