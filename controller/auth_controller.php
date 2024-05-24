@@ -9,10 +9,9 @@ class AuthController {
     static function register() {
         view('auth_page/layout', ['url' => 'register']);
     }
-
+    
     static function saveLogin() {
         $post = array_map('htmlspecialchars', $_POST);
-
         $user = User::login([
             'email' => $post['email'], 
             'password' => $post['password']
@@ -29,14 +28,12 @@ class AuthController {
 
     static function saveRegister() {
         $post = array_map('htmlspecialchars', $_POST);
-
         $user = User::register([
             'Fullname' => $post['Fullname'], 
             'Username' => $post['Username'], 
             'Email' => $post['Email'], 
             'Password' => $post['Password']
         ]);
-
         if ($user) {
             header('Location: '.BASEURL.'login');
         }
@@ -47,7 +44,6 @@ class AuthController {
 
     static function logout() {
         $_SESSION = array();
-
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
             setcookie(session_name(), '', time() - 42000,
